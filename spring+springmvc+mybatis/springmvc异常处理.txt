@@ -1,0 +1,31 @@
+1.springmvc异常处理
+	在表现层、业务层、持久层抛出异常都是向上抛异常，由前端控制器的异常处理器组件进行异常处理，在返回给浏览器给出错误提示页面
+
+2.配置异常处理环境
+	 1.编写自定义异常类(做提示异常信息的)
+		第一新建exception文件夹，然后创建自定义异常类继承Exception
+		第二在异常类中定义一个字符串，用来存储异常信息内容，生成get、set方法和带参数的构造方法
+	2.在可能抛出异常的地方抛出刚刚自定义的异常
+	3.编写自定义异常处理器类
+		第一创建自定义异常处理器类并且实现HandlerExceptionResolver接口
+		第二覆写resolveException()方法，负责处理异常业务逻辑：
+			获取异常对象：
+			        	SysException ex = null;
+        				if(e instanceof SysException)
+        				{
+            					ex = (SysException)e;
+        				}else
+        				{
+            					ex = new SysException("当前系统正在维护.....");
+        				}
+			创建ModelAndView对象
+				ModelAndView mv = new ModelAndView();
+				mv.addObject("errorMsg",ex.getMessage());//存储异常信息
+				mv.setViewName("error");//要跳转的错误信息页面
+				return mv;
+
+	4.在springmvc.xml中配置自定义异常处理器
+		<bean id="自定义异常处理器别名" class="自定义异常处理器的全限定类名"/>
+
+	5.配置异常处理页面，例如error.jsp
+			

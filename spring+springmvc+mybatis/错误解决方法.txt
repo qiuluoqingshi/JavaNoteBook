@@ -1,0 +1,42 @@
+1.org.apache.catalina.core.StandardContext.listenerStart Error configuring application listener of class [org.springframework.web.context.ContextLoaderListener]
+One or more listeners failed to start. Full details will be found in the appropriate container log file
+org.apache.catalina.core.StandardContext.startInternal One or more listeners failed to start. Full details will be found in the appropriate container log file
+11-Jul-2020 17:58:34.495 严重 [RMI TCP Connection(3)-127.0.0.1] org.apache.catalina.core.StandardContext.startInternal Context [/library_war_exploded] startup failed due to previous errors
+[2020-07-11 05:58:34,526] Artifact library:war exploded: Error during artifact deployment. See server log for details.
+原因：Artifacts没有正确配置
+解决：https://blog.csdn.net/Quantum_Dog/article/details/88843852
+
+
+2.XML schema namespace [http://www.springframework.org/schema/tx]
+解决：降低spring版本
+
+3.ssmNo mapping found for HTTP request with URI [/xxx_war_exploded/]
+原因：使用  <welcome-file-list><welcome-file>main.html</welcome-file></welcome-file-list>修改默认页面后，由于在web.xml中使用了DispatcherServlet截获所有的请求url，DispatcherServlet会将“/”看成请求路径，不会寻找静态资源，找不到的时候会报404错误
+解决：在web.xml中使用<mvc:default-servlet-handler/>即可，当配置文件加上这个默认的Servlet时，Servlet在找不到它时会去找静态内容
+
+4.找不到静态资源
+解法：将静态资源(css/js/html等)目录放在webapp下，不要放在web-inf中
+
+5.如果静态资源有多级目录，要访问外层，需要在资源位置前加../，有几层加几个
+
+6.Unknown system variable 'tx_isolation'
+原因：出现这个异常，是因为mysql-connector-java.jar的版本太低，数据库的版本太高，不匹配导致的
+解法：在pom.xml中将mysql-connector-java升级到最新版本就解决了问题.
+
+7.mybatis使用批量更新单个数据正常，多个数据会报错
+原因：xml或者注解使用了循环，在mybatis中默认是不允许使用批量修改。
+解决：jdbc.url后面加上&allowMultiQueries=true
+
+8.ajax使用var bean = []传递bean对象到后端springmvc中出错，没有具体数据
+解决：改为var bean = {}
+
+9.ajax传递bean对象：
+	在html的ajax中：
+		dataType: "json",
+                	contentType:"application/json", // 指定这个协议很重要
+                	data:JSON.stringify(bean对象),
+	在controller方法参数前添加@RequestBody
+
+10.ajax传递bean对象时，对象中一个变量赋值失败
+原因：可能变量名存在大写
+解决：改为全部小写

@@ -1,0 +1,46 @@
+1.style元素或者选择器基本属性：
+	font-size：字体大小
+	color：设置颜色
+	display：组件内的元素显示方式。通常设置为flex，使元素更加灵活
+	flex-direction：设置为flex后，可以使用该属性。column为列排序；row为行排序
+	align-items：各元素在盒子内的位置。center居中，flex-start居首，flex-end居尾
+	justify-content：元素周围留白的方式。space-around各元素周围留白。space-between元素与元素之间留白。center元素居中（该属性很厉害）在这里居中的话，align-items就会被屏蔽
+	
+
+
+2.控制边框
+	border-width：设置边框宽度，例如border-width:5px
+	border-style：设置边框样式，值：solid(固定边框)、dashed(虚线边框)、dotted(圆点边框)等等
+	border-color：设置边框颜色
+	border-top/left/right/bottom-color/style：设置上/左/右/下边框的颜色/样式
+	border：设置边框样式，综合以上功能
+		例如：border: 5px solid red
+	border-top/left/right/bottom：设置上/左/右/下边框样式，综合以上功能
+	border-radius：设置边框圆角，值为圆角效果，例如：border-radius : 10px/10px 
+
+3.设置背景
+	background-color：设置背景颜色
+	background-image：设置背景图片 使用：background-image:url(图片地址),注：不用双引号
+	background-repeat：设置背景填充重复方式
+	background-size：设置背景尺寸，值：auto(默认属性)、contain(按比例拉伸铺盖，没有图片覆盖部分用白边填充)、cover(铺满整个显示区域)、具体数值、百分比
+	background-attachment：设置背景图片随鼠标滚动状态，值：local(固定)、fixed(背景图片随页面一起滚动)
+
+
+4.设置文本样式
+	text-align：设置文本对其方式，值：center(居中)、right(居右)、left(居左)
+	direction：设置文本方向，值：ltr(左到右)、rtl(右到左)，对中文兼容不好
+	letter-spacing：设置字母间距
+	word-spacing：设置单词间距，对英语有效
+	line-height：设置行间距
+	text-indent：设置首行缩进距离
+	text-decoration：设置文本装饰，值：underline(下划线)、overline(上划线)、line-through(删除线)
+	text-transform：设置文本大小写转换，对英语有效，值：capitalize(首字母大写)、uppercase(所有字母大写)、lowerercase(所有字母小写)
+	text-shadow：设置文本阴影
+	font-family：设置文本字体
+	font-size：设置文本字体大小
+	font-style：设置文本字体样式，值：normal(默认)、italic(斜体，比oblique斜体效果好)、oblique(斜体)
+	font-variant：设置字母是否以小型大写字母显示
+	font-weight：设置文本字体粗细，值：输入四个用逗号隔开的值，依次是水平偏移、垂直偏移、模糊程度、模糊颜色
+	
+	
+	

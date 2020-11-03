@@ -1,0 +1,18 @@
+1.符合REST原则的架构方式即可称为RESTful
+
+2.什么是Restful:
+	对应的中文是rest式的;Restful web service是一种常见的rest的应用,是遵守了rest风格的web服务;rest式的web服务是一种ROA(The Resource-Oriented Architecture)(面向资源的架构).
+
+3.为什么会出现Restful
+	在Restful之前的操作：
+		http://127.0.0.1/user/query/1 GET 根据用户id查询用户数据	
+		http://127.0.0.1/user/save POST 新增用户	
+		http://127.0.0.1/user/update POST 修改用户信息
+		http://127.0.0.1/user/delete/1 GET/POST 删除用户信息
+	RESTful用法：
+		http://127.0.0.1/user/1 GET 根据用户id查询用户数据
+		http://127.0.0.1/user POST 新增用户
+		http://127.0.0.1/user PUT 修改用户信息
+		http://127.0.0.1/user DELETE 删除用户信息
+
+4.即通过使用不同请求方式来实现

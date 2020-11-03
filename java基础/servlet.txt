@@ -1,0 +1,214 @@
+1.请求：客户端根据用户地址信息将数据发送给服务器的过程；响应：服务器将请求的处理结果发送给客户端的过程。
+	常用的请求方法有GET、POST、HEAD、OPTIONS、PUT、DALETE、TRACE、CONNECT
+	GET和POST的区别：
+		1.GET方法会将请求数据以？的形式隔开拼接到请求头中，不安全，没有请求实体部分，且get请求方式不能携带大量的数据
+		2.POST方法将请求数据放在请求实体中进行发送，在URL看不到具体的发送数据，安全，适合传送数据量大的数据。
+
+2.HTTP
+	概念：超文本传输协议
+	作用：规范浏览器和服务器的数据交互的格式
+	特点：简单快速、灵活、无连接(HTTP1.1版本可连续连接)、无状态
+
+	HTTP的交互流程
+		1.建立客户机和服务器的连接通道
+		2.客户机发送请求给服务器
+		3.服务器对收到的请求进行处理，并将结果返回给客户机
+		4.关闭客户机和服务器的连接
+
+	HTTP的请求格式的结构(请求头和请求行概念可互换)：
+		1.请求头=请求方式+请求的地址+HTTP协议版本
+		2.请求行=消息报头（一般用来说明客户端要使用的一些附加信息，一般以 头部：数据 这个格式出现）
+		3.空行（位于请求行和请求数据之间，空行是必须的）
+		4.请求数据（是非必须）
+
+	HTTP的响应格式的结构()：
+		1.响应行=HTTP版本+状态码(什么是状态码，常见的响应状态码)+状态消息
+		2.响应头=消息报头（一般用来说明客户端要使用的一些附加信息，一般以 头部：数据 这个格式出现） 
+		3.空行（位于响应头和响应实体之间，空行是必须的）
+		4.响应实体：正文(服务器返回给浏览器的信息)
+
+3.服务器
+	服务器其实就是用代码编写一个可以根据用户请求实时的调用执行对应的逻辑代码的一个容器。
+
+	服务器怎么根据请求调用对应的逻辑代码？
+4.servlet的含义
+	servlet是java提供一种用来让请求按照服务器指定规则，使得服务器能够识别请求，从而找到对应逻辑代码的接口或者是技术，也可以是继承servlet接口后的类。
+
+	请求处理代码过程：1.设置请求编码格式；2.设置响应编码格式；3.获取请求数据；4.处理请求数据(包括数据库操作(MVC思想))；5.响应处理结果
+
+	使用：	1.创建java类并实现HttpServlet接口
+		2.覆写service方法
+		3.在web.xml文件中配置对应java类的servlet
+			<servlet>
+				<servlet-name></servlet-name>servlet名称，要和下面的一致
+				<servlet-class></servlet-class>对应类的全限定类名
+			</servlet>
+			<servlet-mapping>
+				<servlet-name></servlet-name>
+				<url-pattern></url-pattern>对应访问的地址，相当于别名
+			</servlet-mapping>
+
+5.servlet的生命周期
+	1.第一次调用对应servlet后加载进内存，直到关闭服务器后消失
+	2.如果在web.xml中配置load-on-startup，则是从开启服务器后加载进内存，直到关闭服务器消失
+
+6.service方法、doGet方法和doPost方法的使用和区别
+	service方法都可以处理get和post请求
+	doGet方法只能处理get请求
+	doPost方法只能处理Post请求
+	再都有这些方法情况下优先只执行service方法，除非service方法中调用父类的service方法才会根据请求方式调用对应的doGet方法或者doPost方法，但是一般不调用父类的service方法
+
+7.servlet的常见错误：
+	404错误(资源未找到)：请求地址中的别名是否出错或者虚拟项目名称拼写错误
+	405错误(请求方式不支持)：请求方式和servlet中的方法不匹配所造成(尽量用service方法即可解决，且不要调用父类service方法)
+	500错误(内部服务器错误)：在web.xml重查看全限定类名是否拼错或者方法中 有逻辑错误 
+
+	请求数据有中文会乱码：
+		1.使用String重新编码：uname = new String(uname.getBytes("iso8859-1"),"utf-8");
+		2.GET请求方式：
+			先在tomcat服务器目录下的conf文件夹下找到server.xml文件，打开在    <Connector port="8189" protocol="HTTP/1.1" connectionTimeout="20000"
+ redirectPort="8443" />标签中加入 useBodyEncodingForURI="true" ，然后在service方法使用req.setCharacterEncoding("utf-8")；
+		3.POST请求方式：
+			在service方法使用req.setCharacterEncoding("utf-8")；
+8.service方法的两个对象request和response
+	request对象：
+		作用：封存了当前请求的所有请求信息
+		使用：
+			获取请求头数据：
+				获取请求方式：req.getMethod()
+				获取请求URL：req.getRequestURL()
+				获取请求URI：req.getRequestURI()
+				获取协议：req.getScheme()
+			获取请求行数据：
+				根据额外信息的键获取额外信息的值：req.getHeader("键")
+				获取所有请求行的键(类型为enumeration枚举)：req.getHeaderNames()
+				
+			获取请求数据：
+				根据请求数据的键获取对应数据的值：
+					req.getParameter("键") 注：这个方法不能获取同键不同值
+					req.getParameterValues("键") 注：这个方法获取同键不同值，返回类型是数组
+				获取所有请求数据的键(类型为enumeration枚举)：req.getParameterNames()
+		注意：request对象由tomcat服务器创建，并作为实参传递给处理请求的service方法；如果使用键获取值出现null结果，则是键与实际不一致；出现乱码是因为请求数据与编码格式不一致
+
+	response对象：
+		作用：用来响应数据到浏览器的一个对象
+		使用：
+			设置响应头
+				resp.setHeader(String name，String value)：在响应头中添加响应信息，但是同键会覆盖
+				resp.addHeader(String name，String value)：在响应头中添加响应信息，但是同键会追加，不会覆盖
+				resp.sentError(404，"sorry")：设置响应状态码
+				设置编码格式：
+					resp.setHeader("content-type"，"text/html;charset=utf-8")
+					resp.setContentType("text/html;charset=utf-8")
+			设置响应数据
+				resp.getWriter().write(" ")
+
+9.请求转发
+	作用：实现多个servlet联动操作处理请求，避免代码冗余，让servlet的职责更加明确
+	使用：req.getRequestDispatcher("要转发的地址").forward(req,resp);
+		注：要转发的地址为相对路径，写servlet的别名或者网页地址
+	特点：一次请求，浏览器地址栏信息不改变
+	注意：请求转发后，要直接return，并且请求转发只适用于数据可以重复提交的情况
+
+10.request对象的作用域
+	作用域：基于请求转发，一次请求所有servlet共享
+	特点：服务器创建、每次请求都会创建request对象、生命周期只在同一个请求内有效
+	多个servlet数据流转：将想要的处理结果传递给下一个servlet，可以在第一个servlet使用req.setAttribute("键","值")，然后再下一个servlet使用req.getAttribute("键")获取信息
+
+11.重定向
+	作用：解决表单数据重复提交问题，以及解决当前servlet无法处理问题
+	使用：resp.sendRedirect("URL或者URI")，使用本地资源链接用URI，使用网络资源链接用URL
+	特点：两次请求，浏览器地址栏信息改变
+	注意：如果请求中有表单数据，而数据又比较重要，不能重复提交，建议使用重定向；如果请求被servlet接受后，无法处理，使用重定向定位到可以处理的资源
+
+12.cookies
+	作用：解决发送不同请求时的数据共享问题
+	使用：
+		1.创建cookie对象：Cookie c = new Cookie("键","值");
+		2.响应cookie信息：resp.addCookie(c);
+		3.设置定时存储cookie信息：c.setMaxAge(秒);
+		4.设置cookie只发给哪些路径：c.setPath("uri");
+		5.获取cookie数组：req.getCookies();
+		6.分别获取cookie的键和值：c.getName()和c.getValue()
+	注意： 
+		一个cookie对象存储一条数据
+	特点： 	1.cookie是浏览器端的数据存储技术，存储的数据声明是在服务器端
+	    	2.临时存储：存储在浏览器的运行内存中，浏览器关闭就立即失效；定时存储：设置了cookie的有效期，存储在客户端的硬盘中，在有效期内符合路径要求的请求都会附带该信息
+		3.默认cookie信息存储好之后，每次请求都会附带，但是设置有效路径后请求只会把cookie发给对应路径
+
+13.Session
+	作用：解决一个用户不同请求处理的数据共享，和cookie搭配使用
+	原理：用户第一次访问服务器，服务器会创建一个Session对象给此用户，并将该Session对象的JSESSIONID使用cookie技术存储到浏览器中，保证用户其他请求能够获取到同一个session对象，也保证了不同请求能够获取到共享的数据
+	使用：
+		1.创建session对象：HttpSession hs = req.getSession(); 
+		注：	如果请求中拥有session标识符JSESSIONID，则返回对应的session对象；
+			如果没有则创建新的session对象，并将其JSESSIONID作为cookie数据存储到浏览器；
+			如果session对象失效，也会重新创建session对象，并将其JSESSIONID作为cookie数据存储到浏览器。
+		注：JSESSIONID存储在cookie的临时存储空间中，浏览器关闭即失效
+
+		2.设置session存储时间两种方法：
+			(1).hs.setMaxInactiveInterval(秒);
+			(2).先在tomcat服务器的目录下的conf文件夹或者项目中找到web.xml文件，然后改下列配置：    
+				<session-config>
+        					<session-timeout>30</session-timeout>
+    				</session-config>
+		注：时间过后该session对象销毁，但是在时间范围内再一次发送请求，则session存储时间会重新开始计时
+		3.设置session对象强制失效：hs.invalidate();
+		4.存储数据到session对象中：hs.setAttribute("键","值");
+		5.从session对象获取对应数据：hs.getAttribute("键"); 返回类型是object，需要强转类型	
+	特点：存储在服务器端、服务器进行创建、依赖cookie技术、JSESSIONID有效期是一次会话、Session默认存储在服务器时间是30分钟
+	使用时机：
+		一般用户在登陆web项目时会将用户的个人信息存储到session中，供该用户的其他请求使用
+
+	作用域：JSESSIONID和该session对象没有达到存储时间不失效的情况下该session对象在整个项目可用
+	Session对象失效处理：将与用户请求cookie中JSESSIONID和后台获取到的JSESSIONID进行对比，如果结果一致，则session没有失效，如果不一致则证明session失效了，失效了则重定向到登陆页面，让用户重新登陆。
+
+14.ServletContext
+	作用：解决不同用户的数据共享问题，将静态数据和源代码进行解耦(可以将静态数据写到web.xml中，不需要修改源码，也不用重启服务器就能实现数据修改)
+	特点：服务器进行创建、用户共享、一个项目只有一个
+	生命周期：服务器启动到服务器关闭
+	作用域：项目内
+	使用：
+		1.获取ServletContext对象：
+			(1)ServletContext sc = this.getServletContext();
+			(2)ServletContext sc = this.getServletConfig().getServletContext();
+			(3)ServletContext sc = req.getSession().getServletContext();
+		2.存储数据到ServletContext对象中：sc.setAttribute("键","值");
+		3.从ServletContext对象中获取数据：sc.getAttribute("键");
+		4.通过ServletContext获取项目中web.xml文件中的全局配置数据：
+			(1)在web.xml中配置全局数据：
+				<context-param>
+					<param-name>键</param-name>
+					<param-value>值</param-value>
+				</context-param>
+			(2)获取web.xml中的全局数据：
+				sc.getInitParameter("键"); 返回值是String，数据不存在则返回null
+				sc.getInitParameterNames("键");返回所有键的枚举
+		5.通过ServletContext获取项目中web下的资源的绝对路径：
+			sc.getRealPath("web文件夹下的路径")；例子：sc.getRealPath("doc/1.txt");
+		6.通过ServletContext获取项目中web下的资源的流对象：
+			sc.getResourceAsStream(""web文件夹下的路径");返回值为InputStream；例子：sc.getResourceAsStream("doc/1.txt");注：不能获取class文件的流对象，此类文件要用类加载器
+
+15.ServletConfig
+	作用：实现在web.xml中给每一个Servlet单独配置数据
+	使用：
+		(1)获取ServletConfig对象：
+			ServletConfig sc = this.getServletConfig();
+		(2)在web.xml中的一个servlet标签中配置如下：
+				<init-param>
+					<param-name>键</param-name>
+					<param-value>值</param-value>
+				</init-param>
+		(3)获取配置数据
+			sc.getInitParameter("键");返回值为String 
+
+16.web项目下的web.xml和tomcat的conf目录下的web.xml
+	区别：前者为局部配置，针对本项目的位置；后者为全局配置，配置公共信息
+	配置内容有：全局上下文配置(全局配置参数)、Servlet配置、监听器配置、过滤器配置
+	加载顺序：ServletContext->context-param->listener->filter->servlet这个顺序加载组件
+	加载时机：服务器启动
+		
+
+17.server.xml文件
+	冷部署和热部署
+			

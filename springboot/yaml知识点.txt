@@ -1,0 +1,115 @@
+1.什么是yaml，优势是什么？
+	定义：yml 是 YAML（YAML Ain't Markup Language）语言的文件，以数据为中心，比 properties、 xml 等更适合做配置文件
+	优势：yml 和 xml 相比，少了一些结构化的代码，使数据更直接，一目了然，相比 properties 文件更简洁
+
+2.语法：
+	(1)以空格的缩进程度来控制层级关系。空格的个数并不重要，只要左边空格对齐则视为同一个层级。且大小写敏感。支持字面值，对象，数组三种数据结构，也支持复合结构。
+	注意：字符串可以不加引号，若加双引号则输出特殊字符，若不加或加单引号则转义特殊字符；数组类型，短横线后面要有空格；对象类型，冒号后面要有空格；YAML 是以空格缩进的程度来控制层级关系，但不能用 tab 键代替空格，大小写敏感； yaml 的缺点是可读性比较差。
+	(2)支持格式：
+		字面值：字符串，布尔类型，数值，日期。字符串默认不加引号，单引号会转义特殊字符。
+		日期：支持 yyyy/MM/dd HH:mm:ss
+		对象：由键值对组成，形如 key:(空格)value 的数据组成。冒号后面的空格是必须要有的，每组键值对占用一行，且缩进的程度要一致，也可以使用行内写法：{k1: v1, ....kn: vn}
+		数组：由形如 -(空格)value 的数据组成。短横线后面的空格是必须要有的，每组数据占用一行，且缩进的程度要一致，也可以使用行内写法： [1,2,...n] 复合结构：上面三种数据结构任意组合
+	(3)属性绑定：属性绑定是通过 set 方法来完成的，通过yml给类中变量进行依赖注入，因此yml中具体数据是依赖于相对应的类，为了使得在yml更方便的书写，idea都会根据类中变量给予开发者提示，但是需要先在pom.xml引入如下工具(引入后使用ctrl+F9使得配置生效)：
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		属性绑定是基于set方法进行依赖注入，但是随着代码量增多，为了方便，通过引入Lombok来解决这个问题，即不需要写get和set方法也能实现依赖注入：
+		1)先在pom.xml引入如下工具(引入后使用ctrl+F9使得配置生效)：
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>1.16.20</version>
+			</dependency>
+		2)将类中的get和set方法去掉
+		3)在类上方使用@Data注解即可实现在不写get和set等方法的情况下也能实现依赖注入
+	(4)构造器绑定
+		要使用@ConstructorBinding进行构造函数绑定，必须在使用该类的类上使用@EnableConfigurationProperties 或配置属性扫描启用类，以此将该类注入bean中。不能对由常规 Spring 机制创建的 Bean 使用构造函数绑定（例如@Component Bean、通过@Bean 方法创建的 Bean 或使用@Import 加载的 Bean）
+		如果一个配置类只配置@ConfigurationProperties 注解，而没有使用@Component，那么在 IOC 容器中是获取不到 properties 配置文件转化的 bean。说白了 @EnableConfigurationProperties 相当于把使用 @ConfigurationProperties 的类进行了启用注入。
+	(5)松散绑定：Spring Boot 使用一些宽松的规则将环境属性绑定到@ConfigurationProperties的bean中，因此环境属性名和 bean 属性名之间不需要完全匹配
+	例子：@ConfigurationProperties("acme.my-person")，类中变量名为：firstName，则在application.yml中可以将数据指定为以下格式：
+		1)achme：
+			my-person：	
+				first-name(羊肉串模式 case, 推荐使用)
+		2)achme：
+			myPerson：
+				firstName(标准驼峰模式，@ConfigurationProperties前缀不支持驼峰模式，yml配置文件支持)
+		3)achme：
+			my_person：	
+				first_name(下划线模式)
+		4)ACHME：
+			MY_PERSON：	
+				FIRST_NAME(大写下划线，如果使用系统环境时候推荐使用)
+	(6)属性校验：用来判断属性是否符合格式要求，每当使用 Spring 的@Validated 注释对@ConfigurationProperties 类进行注释时，Spring Boot 就会尝试验证它们。你可以用 JSR-303 javax.validation 直接在配置类上的约束注释。为此，请确保类路径上有一个兼容的 JSR-303 实现，此处我们用的是 hibernate 的实现，然后将约束注释添加到字段中。
+		1)在主pom.xml引入依赖
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>5.2.0.Final</version>
+			</dependency>
+		2)在属性类上加入注解
+			@Data
+			@Component
+			@ConfigurationProperties("acme.my-person.person")
+			@Validated //spring 提供的注解
+			public class OwnerProperties {
+				@NotNull	//javax.validation.constraints 提供
+				private String firstName;
+				@Max(35)
+				private int age;
+				@Email
+				private String email;
+			}
+		3)配置文件
+			acme:
+				my-person:
+					person:
+						FIRST_name: 泰森
+						age: 34
+						email: aaa
+		4)注意：在有内部类对象的情况下，要进行属性校验，则需要在该对象前加上注解@Valid才能校验生效
+	(7)使用例子：
+		1)创建一个 Spring Boot 的全局配置文件 application.yml，配置属性参数。主要有字符串，带特殊字符的字符串，布尔类型，数值，集合，行内集合，行内对象，集合对象这几种常用的数据格式。
+		2)application.yml如下：
+			yaml:
+				str: 字符串可以不加引号
+				specialStr: "双引号直接输出\n 特殊字符"
+				specialStr2: '单引号可以转义\n 特殊字符'
+				flag: false
+				num: 666
+				Dnum: 88.88
+				list:
+					-one
+					-two
+					-three
+				set: [1,2,2,3]
+				map: {k1: v1, k2: v2}
+				positions:
+					- name: txjava
+					salary: 15000.00
+					- name: liangge
+				salary: 18888.88
+		3)创建实体类 YamlEntity.java 获取配置文件中的属性值，通过注解@ConfigurationProperties获取配置文件中的指定值并注入到实体类中。
+			@Component
+			@ConfigurationProperties(prefix = "yaml")
+			public class YamlEntity {
+				//字面值，字符串，布尔，数值
+				private String str; // 普通字符串
+				private String specialStr; // 转义特殊字符串
+				private String specialStr2;// 输出特殊字符串
+				private Boolean flag;	// 布尔类型
+				private Integer num;	// 整数
+				private Double dNum;	// 小数
+				// 数组，List 和 Set，两种写法： 第一种：-空格 value，每个值占一行，需缩进对齐；第二种：[1,2,...n] 行内写法
+				private List<Object> list; private Set<Object> set;
+				// list 可重复集合
+				// set 不可重复集合
+				//Map 和实体类，两种写法：第一种：key 空格 value，每个值占一行，需缩进对齐；第二种：{key: value,....} 行内写法
+				private Map<String, Object> map; // Map K-V
+				private List<Position> positions;	// 复合结构，集合对象
+				// 省略 getter，setter，toString 方法	
+			}
+
+3.yaml中profile用法：

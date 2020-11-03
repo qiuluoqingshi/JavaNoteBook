@@ -1,0 +1,28 @@
+1.css：即层叠样式表，用来表现html或者xml等文件样式的计算机语言，可以对网页样式进行设计和丰富
+
+2.最基础的CSS元素和属性：
+	style元素：属于全局元素
+		style元素或者选择器基本属性：
+			font-size：字体大小
+			color：设置颜色
+
+		使用格式：style = "font-size:40px;color:#FFFFFF"(元素内嵌样式表)
+
+3.三种创建css的方法：
+	(1)使用元素内嵌样式表：将css作为各种标签的属性使用就是元素内嵌样式表
+		例如：<a href="" style = "font-size:40px;color:#FFFFFF"></a>
+
+	(2)使用文档内嵌样式表：将css作为放在head中作为标签使用，然后在标签内使用选择器：例如标签名称+{}来设置标签样式
+		例如：
+			<style type="text/css">
+				a { font-size:40px; color:#FFFFFF; }
+			</style>
+
+	(3)使用外部样式表：1.创建css文件，然后使用选择器：例如标签名称+{}来设置标签样式
+		            例如在css文件中写：a { font-size:40px; color:#FFFFFF; }
+		          2.在head中使用<link rel = "stylesheet" type = "text/css" href="css文件地址(项目内忽略地址)+名称">来导入css文件样式
+
+	三种方法区别：使用元素内嵌样式表只能控制单个标签样式，文档内嵌样式表只能控制一个html文件的样式，外部样式表可以控制多个html文件的样式
+
+4.层叠样式表的层叠的含义：就是说优先级：元素内嵌样式表>文档内嵌样式表>外部样式表，优先级高的会覆盖优先级低的
+			

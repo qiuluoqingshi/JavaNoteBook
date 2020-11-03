@@ -1,0 +1,2 @@
+mybatis、DBUtils、JPA
+传统的JDBC语句

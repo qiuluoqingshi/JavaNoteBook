@@ -1,0 +1,50 @@
+1.表单
+	含义：是html中获取用户输入的手段，对于web应用系统极其重要
+	包含<form>标签、<input>标签
+
+2.<form>标签
+	属性：
+		method：请求方式
+		action：请求地址，即url或者uri
+	搭配<input>标签、<textarea>标签、<button>标签、<select>标签、<datalist>标签使用
+
+3.<input>标签
+	属性：
+		type：
+			值：text(单行文本框)、password(密码框)、button(按钮)、
+			       submit(提交表单)、range(滑动条)、number(数字控件)、
+                                                       checkbox(选择框)、radio(单选按钮控件)、color(获取颜色)
+                                                       email、tel、url、date(日期框)、search(搜索框)、
+                                                       hidden(隐藏数据项)、image(图片按钮)、file(上传文件框)
+		id：唯一标识符
+		name：该input标签名称(用于让服务器知道是哪个组件)，给多个radio设置同一个name，可以实现单选功能
+		value：设置文本占位，滑动条、数字控件起始值
+		placeholder：文本不占位
+		maxlength：可输入最大的字符
+		size：将单行文本框拓宽
+		readonly：将单行文本框设为只读，没有值
+		min：设置滑动条、数字控件最小值
+		max：设置滑动条、数字控件最大值
+		step：设置滑动条步长
+		checked：使当前单选按钮控件已选中
+		src：资源地址
+		width：设置宽度
+		Multiple：一次允许上传多个文件
+		Required：必须上传一个文件
+		
+	当type="text"，搭配id、name、value、placeholder、maxlength、size、readonly
+	当type="range"，搭配min、max、step、value
+	当type="number"，搭配min、max、value
+	当type="image"，搭配width、src
+	当type="file"，搭配Multiple、Required，需要将form的enctype属性设置为multipart/form-data
+
+4.<textarea>标签：多行文本框
+	属性：
+		rows：设置多行文本框有多少行
+		cols：增加多行文本框宽度
+		
+5.<button>标签：按钮，作用和<input type="button">相似，但是区别是<button>标签可以与js合作并且绑定事件
+
+6.<select>标签：创建下拉列表，在此标签下使用<option>标签录入下拉选项
+
+7.<datalist>标签：在此标签下使用<option>标签录入下拉选项，主要是给<input type="text">提供预设值，搭配使用时，必须给<datalist>的id赋值，然后在<input>标签中引用它

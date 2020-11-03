@@ -1,0 +1,40 @@
+1.处理完请求后，实现响应：
+	1.在处理请求后，return一个字符串，字符串的值为想要返回的页面的名称
+	2.没有返回值，则是用原生Servlet的API实现响应
+		注：重定向的地址需要使用request.getContextPath()获取项目名称+"页面路径"，例如request.getContextPath()+"/WEB-INF/pages/xxx.jsp"
+	3.在处理请求后，return一个ModelAndView对象
+		使用：
+			1.在方法中ModelAndView mv = new ModelAndView()/new ModelAndView("页面名称")对象
+			2.在ModelAndView对象中存入共享数据：mv.addObject("键","值");
+			3.跳转到指定页面：mv.setViewName("页面名称");
+	4.在处理请求后，return forward和redirect关键字
+		使用：
+			return "forward:/WEB-INF/pages/xxx.jsp"
+			return "redirect:/xxx.jsp"
+	5.处理Ajax异步请求
+		请求方法是POST：
+			1.在方法的JavaBean参数前面使用@ResquestBody来获取请求体信息(注：json的数据 "键" 的名称要与JavaBean里的变量名称相同)
+			2.将json的数据进行转换，封装到JavaBean中，使用如下：
+				在pom.xml导入jackson的jar包：
+					 <dependency>
+      						<groupId>com.fasterxml.jackson.core</groupId>
+      						<artifactId>jackson-databind</artifactId>
+      						<version>2.9.0</version>
+    					</dependency>
+    					<dependency>
+      						<groupId>com.fasterxml.jackson.core</groupId>
+      						<artifactId>jackson-core</artifactId>
+      						<version>2.9.0</version>
+    					</dependency>
+    					<dependency>
+      						<groupId>com.fasterxml.jackson.core</groupId>
+      						<artifactId>jackson-annotations</artifactId>
+      						<version>2.9.0</version>
+    					</dependency>
+			3.处理完后，将JavaBean对象返回，并且在返回值类型前面添加注释@ResquestBody
+			注：不管是json数据封装进JavaBean对象还是将JavaBean对象返回转换为json数据，都是由框架底层实现的
+
+2.请求使用服务器端静态资源时，会被前端控制器拦截，需要配置哪些要使用的静态资源不被拦截，在springmvc.xml配置一下：
+	<mvc:resources mapping="" location=""/>
+	注：mapping是指当请求路径有mapping值，则不拦截；location是指静态资源的路径，一般是放在WEB-INF目录下
+	例：<mvc:resources mapping="/js/**" location="/js/**"/>

@@ -1,0 +1,8 @@
+1.三种使用js方法：
+	1.直接在head标签中使用<script>标签编写js语句
+	2.在body标签中使用<script>标签
+	3.创建js文件后，在head标签中使用<script src = "">去引用即可
+
+	在<script type="text/javascript" >
+2.alert()：
+	使用alert("")，在页面弹出提示框

@@ -1,0 +1,53 @@
+1.css使用过渡
+	直接过渡：
+		a { font-size:40px; color:#FFFFFF; }
+		a : hover { font-size:80px; color:#111111; }
+		实现鼠标移动到a样式时会进行过渡
+	间接过渡：
+		a { font-size:40px; color:#FFFFFF; }
+		a : hover { 
+			font-size:80px; 
+			color:#111111;
+			transition-delay:150ms <!-- 延迟过渡开始时间 -->
+			transition-duration:500ms <!-- 延迟过渡过程中过渡效果的时间，即缓慢变化 -->
+			transition-property: font-size<!-- 指定要实现以上延迟效果的属性名称 -->
+			transition-timing-function:linear
+			<!-- 指定切换效果的速度 
+			linear	规定以相同速度开始至结束的过渡效果（等于 cubic-bezier(0,0,1,1)）。
+			ease	规定慢速开始，然后变快，然后慢速结束的过渡效果（cubic-bezier(0.25,0.1,0.25,1)）。
+			ease-in	规定以慢速开始的过渡效果（等于 cubic-bezier(0.42,0,1,1)）。
+			ease-out	规定以慢速结束的过渡效果（等于 cubic-bezier(0,0,0.58,1)）。
+			ease-in-out  规定以慢速开始和结束的过渡效果（等于 cubic-bezier(0.42,0,0.58,1)）。
+			cubic-bezier(n,n,n,n)	  在 cubic-bezier 函数中定义自己的值。可能的值是 0 至 1 之间的数值。-->
+		}
+2.css使用动画
+		a { font-size:40px; color:#FFFFFF; }
+		a : hover { 
+			animation-delay:150ms <!-- 延迟动画开始时间 -->
+			animation-duration:500ms <!-- 延迟动画过程中动画效果的时间，即缓慢变化 -->
+			animation-name: kaopu<!-- 指定要使用的动画名称 -->
+			animation-iteration-count:infinite<!-- 设置动画无限重复，值为数字则为数值的次数 -->
+			animation-direction:alternate<!-- 设置先执行一遍动画，然后再反向执行一遍动画 -->
+			
+		}
+		<!-- 新建一个动画效果 -->
+		@keyframes kaopu {
+			from{
+			}<!-- 动画开始效果-->			
+			50%{
+			}<!-- 动画进行到百分之五十的效果-->
+			75%{
+			}<!-- 动画进行到百分之七十五的效果-->
+			to{
+				font-size:80px; 
+				color:#111111;
+			}<!-- 动画结束效果-->
+		}
+
+3.css使用变换
+	a { font-size:40px; color:#FFFFFF; }
+	a : hover { 
+		font-size:40px; color:#FFFFFF; 
+		transform:rotate(45deg)<!--应用于元素的2D或3D转换。这个属性允许你将元素旋转，缩放，移动，倾斜等-->
+		transform-origin:top right<!--设置要进行2d或3d转换的中心点位置-->
+	}

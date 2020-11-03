@@ -1,0 +1,186 @@
+1.表现层：一般包括展示层和控制层、控制层负责接受请求、展示层负责结果的展示，一般使用MVC模型
+
+2.MVC设计模型：
+	全称：model-view-controller
+	model模型：指的是javeBean对象，作用是用于封装数据
+	view视图：指的是jsp或者html，作用一般是展示数据
+	controller控制器：指的是servlet，一般用于处理程序逻辑，即处理请求和响应
+
+3.什么是springMVC
+	springMVC通过一套注解，让一个简单的java类成为处理请求的控制器，而不需要实现任何接口，同时支持RESTful编程风格的请求，是表现层的一个轻量型框架，此框架基于组件方式执行流程
+
+4.springMVC的优势：
+	清晰的角色划分：
+		前端控制器、请求到处理器映射、处理器适配器、视图解析器、处理器或页面控制器、验证器、命令对象、表单对象
+
+5.springMVC和Struts2的区别：
+	共同点：都是表现层框架、都是基于MVC模型编写的、底层都离不开servletAPI、处理请求的机制都是一个核心控制器
+	不同点：
+		springMVC的入口是servlet，Struts2的入口是Filter；
+		springMVC是基于方法设计的，Struts2是基于类设计的；
+		springMVC更加简洁、支持JSR303，处理ajax的请求更方便；
+		Struts2的OGNL表达式使得页面的开发效率比springMVC高，但是执行效率并没有比JSTL提升，尤其是struts2的表单标签没有html执行效率高。
+
+6.springMVC搭建环境——请求：
+	1.创建maven工程
+	注：解决maven过程创建缓慢问题，在properties下添加一个键值对：archetypeCatalog、internal
+	2.在src目录下的main文件夹中创建java和resource两个文件夹，并将右键java文件夹->选择mark Directory as->选择sources root，右键resource文件夹->选择mark Directory as->选择Resources root
+	3.在pom.xml中修改maven版本为1.8，并且导入springMvc的Jar包
+	4.在web.xml中配置核心控制器DispatcherServlet(起到控制作用，当有请求则首先经过这个servlet)：
+		<!-- SpringMVC的核心控制器 -->    
+		<servlet>        
+			<servlet-name>dispatcherServlet</servlet-name>        
+			<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>        
+			<!-- 配置Servlet的初始化参数，读取springmvc的配置文件，创建spring容器 -->
+        			<init-param>
+				<!-- 配置servlet启动时加载对象 -->  
+            				<param-name>contextConfigLocation</param-name>            
+				<param-value>classpath*:springmvc.xml</param-value>        
+			</init-param>              
+			<load-on-startup>1</load-on-startup>    
+		</servlet>    
+		<servlet-mapping>        
+			<servlet-name>dispatcherServlet</servlet-name>        
+			<url-pattern>/</url-pattern>  
+			<!--此处的 / 代表发任何请求都会经过DispatcherServlet-->  
+		</servlet-mapping>
+	5.在resource目录下创建springmvc.xml文件
+	6.部署服务器设置：点击Add Configuration，点击tmocat server选择local，然后在Deployment选择加号添加Artifact，把当前项目构建进tomcat中，然后再点击Add Configuration上的加号，使用刚才设置好Tomcat server
+
+7.使用注解配置处理请求的方法：
+	1.在一个Controller类上使用注解@Controller；
+	2.在类中的方法上面使用注解@RequestMapping(path="uri")，path的参数代表处理请求的路径
+	3.在使用@RequestMapping(path="uri")的方法中，一旦请求完毕，要实现跳转页面，则是使用 return "跳转页面名称(例如页面为index.jsp，则写index)"
+	4.在webapp->WEB-INF目录下，创建pages目录，然后在pages目录下创建页面文件，例如index.jsp
+	5.要实现在方法中跳转页面时，方法能够找到对应的页面文件，则需要在springmvc.xml中配置视图解析器对象：
+		<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">        
+			<property name="prefix" value="/WEB-INF/pages/"></property>        
+			<property name="suffix" value=".jsp"></property>   
+		 </bean>
+		注：其中prefix表示文件所在的目录，suffix表示文件的后缀名
+	6.在springmvc配置以下：
+		<!-- 配置spring创建容器时要扫描的包 -->    
+		<context:component-scan base-package="com.itheima"></context:component-scan>
+	 	<!-- 配置spring开启注解mvc的支持-->      
+		<mvc:annotation-driven></mvc:annotation-driven>
+
+8.视图解析图作用：
+	当一个处理请求的方法返回一个名称，DispatcherServlet会通过视图解析器找到相对应的页面，然后DispatcherServlet将结果响应给用户
+
+
+9.@RequestMapping()注解：
+	作用：用于建立请求URL和处理请求方法之间的对应关系
+	使用：放在类上，代表一级路径，放在方法上，代表二级路径
+	值：
+		path和value都是用来映射路径
+		method表示当前方法可以接受什么请求方法
+		params用于指定限制请求参数的条件，支持简单的表达式，要求请求参数的key和value必须和配置的一模一样
+		headers用于指定请求中必须带有配置的请求头
+
+10.请求参数绑定
+	含义：获取表单提交的请求参数的过程就是请求参数的绑定，作为控制器中方法的参数进行绑定
+	支持的数据类型：基本数据类型和String类型、实体类型(JavaBean)、集合数据类型
+	注：
+	要将请求参数封装到方法参数的JavaBean中，
+		如果JavaBean中没有其他JavaBean，则必须保证请求参数的键或者名称要与JavaBean中变量的名称一致
+		如果有，则请求参数的对应键格式是JavaBean中的JavaBean名称+ . +后者JavaBean中变量的名称
+	要将请求参数封装到方法参数的集合数据类型中，
+		请求参数的对应键格式是JavaBean中的List集合数据类型名称+ [index]. +变量的名称(如果List中是JavaBean类型则需要加变量名称，不是则不用)
+		请求参数的对应键格式是JavaBean中的Map集合数据类型名称+ ['键名']. +变量的名称(如果List中是JavaBean类型则需要加变量名称，不是则不用)
+
+11.配置解决中文乱码的过滤器
+	post请求会出现中文乱码情况，解决：
+		在web.xml中配置如下：
+ 		<filter>
+    			<filter-name>CharacterEncodingFilter</filter-name>
+    			<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        			<init-param>
+				<!-- 配置编码格式 -->  
+            				<param-name>encoding</param-name>            
+				<param-value>UTF-8</param-value>        
+			</init-param>               
+  		</filter>
+  		<filter-mapping>
+    			<filter-name>CharacterEncodingFilter</filter-name>
+    			<url-pattern>/*</url-pattern>
+  		</filter-mapping>
+
+12.自定义类型转换器
+	使用自定义类型转换器：
+		1.定义一个类，实现Converter<S,T>接口，该接口有两个泛型(S代表要接受转换的类型，T代表要转换而成的类型)
+		2.在springmvc.xml下配置自定义类型转换器的类：
+    			<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        				<property name="converters">
+            					<set>
+                					<bean class="要注册的自定义转换器的全限定类名"></bean>
+            					</set>>
+        				</property>
+    			</bean>
+			<!-- 配置类型转换器生效 -->
+			<mvc:annotation-driven conversion-service="conversionService"/>
+
+13.在Controller类中获得原生servlet的API，即request和respond对象
+	只需在对应方法参数列表小括号中添加HttpServletRequest和HttpServletResponse即可
+
+14.常见注解：
+	@RequestParam
+		作用：把请求中指定名称的参数给控制器的形参赋值
+		值：
+			value：请求参数中需要得到的参数的键
+			required：请求参数中是否必须提供此参数，默认为true
+		使用：放在方法的参数前面
+
+	@RequestBody
+		作用：
+			用于获取请求体的内容，获取key=value&key=value..结构的数据
+			适用于POST请求，不适用于GET请求
+			此注解主要用在异步中
+		值：
+			required：是否必须有请求体，默认为true，get请求会报错，为false，get请求得到null
+		使用：放在方法的参数前面，赋值给注解后面的string类型参数
+
+	@PathVaribale
+		作用：获取url中占位符的值，例如url="/user/{uid}"，获取的就是uid的值
+		值：
+			value：占位符的名称
+			required：请求参数中是否必须提供此参数，默认为true
+		使用：放在方法的参数前面，把占位符的值赋值给注解后面的string类型参数
+
+	@RequestHeader
+		作用：用于获取请求消息头
+		值：
+			value：提供消息头的名称
+			required：是否必须有此消息头
+		使用：放在方法的参数前面，赋值给注解后面的string类型参数
+
+	@CookieValue
+		作用：用于获得指定Cookie的值传给控制器方法参数
+		值：
+			value：指定Cookie名称
+			required：是否必须有此Cookie
+		使用：放在方法的参数前面，赋值给注解后面的string类型参数
+
+	@ModelAttribute
+		作用：
+			用于修饰方法和参数
+			修饰方法时，表示当前方法会在控制器方法执行前先执行，可以修饰有返回值或者没有返回值的方法
+			修饰参数时，获取指定数据赋值给后面的参数
+		值：
+			value：要从map中取出值得键
+		注：如果修饰没有返回值的方法，此方法参数要增加Map<String,类> map，且方法中要用map.put("键"，"值")将要数据封装，然后再后续的控制器方法的参数前面通过此注解和键获取数据
+
+	@SessionAttributes
+		作用：用于多次执行控制器方法间的参数共享
+		值：
+			value：用于指定存入的属性名称
+			type：用于指定存入的数据类型
+
+		使用：放在类上方
+		搭配Model或者ModelMap使用：
+			1.在方法中添加Model model 或ModelMap modelMap参数
+			2.在方法中使用model.addAttribute("键","值")存入数据
+			3.在类上方注解@SessionAttributes(value={"键"})
+			4.在方法中使用modelMap.get("键")获取数据
+			5.在方法中添加SessionStatus status参数，调用status.setComplete()清除session
+14.REST风格URL
+	RESTFUL风格编程：请求路径一样，但是根据不同的请求方式和URL的占位符决定执行哪种方法

@@ -1,0 +1,55 @@
+1.将工程打包成jar包：
+    	(1)先在主pom.xml文件中引入打包插件
+    		<build>
+        			<plugins>
+        		    		<plugin>
+                				<!-- 打包插件 -->
+                				<groupId>org.springframework.boot</groupId>
+                				<artifactId>spring-boot-maven-plugin</artifactId>
+            				</plugin>
+        			</plugins>
+    		</build>
+    	(2)然后在idea使用terminal-local控制台输入：mvn -f 工程名称 clean package
+	(3)最后在idea使用terminal-local控制台输入：java -jar jar包路径；从而运行项目
+
+2.使用springboot Developer Tools实现热部署：
+	(1)在主pom.xml文件中引入Developer Tools的依赖
+		<dependencies>
+    			<dependency>
+        				<groupId>org.springframework.boot</groupId>
+        				<artifactId>spring-boot-devtools</artifactId>
+        				<optional>true</optional>
+    			</dependency>
+		</dependencies>
+	(2)使用以下两种方式即可完成热部署重启：
+		1)修改了类文件后，idea 不会自动编译，需要通过 ctrl+F9 来触发
+		2)想要自动生效得修改 idea 设置，该功能按着个人的喜好来设置，修改类后，当我们窗口切换时候可以看到热部署的发生：首先勾选File-Settings-Compiler-Build Project automatically，然后ctrl + shift + alt + / ,选择 Registry,勾上 Compiler autoMake allow when app running
+	(3)注意：如果项目是以jar形式运行，则springboot Developer Tools需要被禁止使用，即热部署需要被禁用
+
+3.热部署排除哪些路径不加载
+	默认情况下，/META-INF/maven，/META-INF/resources，/resources，/static，/templates，/public 这些文件夹下的文件修改不会使应用重启，但是会重新加载（devtools 内嵌了一个 LiveReload server，当资源发生改变时，浏览器刷新）。
+	1.我们在 resources/static 目录下创建 tx.js 文件每次发生修改后的并不重启，而是采用 livereload 的方式。
+	2.同时我们可以根据自己的意愿来在application.properties文件中设置想要排除的资源：spring.devtools.restart.exclude=static/**,public/**
+
+4.springboot启动时加载配置文件：application.properties或者application.yml
+	
+	(1)配置文件默认需要放在以下其中一个指定位置才能生效：
+		–file:./config/
+		–file:./ 项目的跟路径，如果当前的项目有父工程，配置文件要放在父工程 的根路径
+		–classpath:/config/
+		–classpath:/
+		优先级由高到底，高优先级的配置会覆盖低优先级的配置；
+	(2)配置信息：
+		1)application.properties：
+			server.port=8088 //设置启动端口
+			spring.devtools.restart.exclude=config/** //设置热部署不加载的文件路径
+		2)application.yml：
+	(3)注意：如果我们的配置文件名字不叫 application.properties 或者 application.yml，可以通过以下两种方法和参数来指定配置文件的名字，myproject 是配置文件名：
+		1)idea控制台下：$ java -jar myproject.jar --spring.config.name=myproject
+		2)点击idea中edit configurations，在environment中的 program arguments中输入--spring.config.name=myproject	
+	             我们同时也可以指定其他位置的配置文件来生效：
+		1)$ java -jar myproject.jar --spring.config.location=D:/myproject.properties
+		2)点击idea中edit configurations，在environment中的 program arguments中输入--spring.config.location=D:/myproject.properties
+
+3.SPI机制
+

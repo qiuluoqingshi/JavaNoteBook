@@ -1,0 +1,34 @@
+1.springmvc中的拦截器和Servlet中的过滤器功能相似，用于对处理器进行预处理和后处理，处理器指的是Controller类
+
+2.拦截器链指的是多个拦截器连在一起执行
+
+3.拦截器和过滤器区别：
+	拦截器：
+		springmvc框架自己的，只有使用了springmvc的框架才可以使用
+		只会拦截访问控制器方法的请求，如果访问的是jsp、html、css、image或者js等则不会拦截
+		是AOP思想的具体应用
+		必须实现HandlerInterceptor接口
+	过滤器：
+		是servlet规范中的一部分，任何javaweb都可以使用
+		在url-pattern中配置了"/*"后，可以对所有要访问的资源拦截
+
+4.配置拦截器
+	1.编写拦截器类
+		第一新建interceptor文件夹，然后创建自定义拦截器类并且实现HandlerInterceptor接口
+		第二覆写HandlerInterceptor接口方法
+			preHandle()方法：对处理器进行预处理，在controller类方法执行前执行，返回值是true，则放行，执行下一个拦截器，如果没有下一个拦截器，则执行controller类方法，返回值为false，不放行
+			psotHandle()方法：对处理器进行后处理，在controller类方法执行后，页面跳转前执行
+			preHandle()和psotHandle()都可以重新设置跳转页面，controller方法中设置的页面不会跳转，但是该页面会执行
+			afterCompletion()：在controller类方法执行后实现页面跳转后执行，不可以进行页面跳转
+	2.在springmvc.xml中配置拦截器
+		<mvc:interceptors>
+        			<mvc:interceptor>
+				<!-- 要拦截的具体方法，这两个二选一 -->
+				<!-- path="/**"代表拦截所有请求，path="/user/*"代表拦截访问/user下的所有方法的请求 -->
+            				<mvc:mapping path=""/>
+				<!-- 不要拦截的具体方法 -->
+            				<mvc:exclude-mapping path=""/>
+				<!-- 配置自定义的拦截器对象 -->
+				<bean class="自定义拦截器的全限定类名">
+        			</mvc:interceptor>
+    		</mvc:interceptors>

@@ -1,0 +1,123 @@
+1.ssm分为三层架构：表现层、业务层、持久层，具体看图片
+	表现层功能：与浏览器进行数据传递交互
+
+dao包：
+	接口类一般是用来处理持久层(数据访问层)，即与数据库进行JDBC，使用Mybatis框架
+
+service包：
+	接口类一般是用来处理业务逻辑层，即处理业务逻辑(实现各种方法操作)
+	@EnableAspectJAutoProxy(proxyTargetClass = true)：
+		此注解解决 but was actually of type 'com.sun.proxy.$ProxyXXX'问题
+
+controller包：
+	接口类一般是用来处理表现层，即封装数据，前端页面显示
+
+	
+2.业务逻辑层和数据访问层一般很少有能修改的类对象，考虑线程问题
+
+3.事务的控制应该在业务层，而不是在持久层
+
+4.spring回滚机制：是回滚到执行操作之前的状态
+
+5.spring配置文件名：applicationContext.xml，springmvc配置文件名：springmvc.xml，mybatis配置文件名：SqlMapConfig.xml
+
+6.用spring框架去整合springmvc和mybatis框架
+	注：spring的xml只扫描除controller外的包的注解，controller包的注解交给springmvc的xml扫描，在spring的xml配置如下：
+	    <context:component-scan base-package="com.linzebiao">
+		<!-- 配置不扫描Controller相关注解 -->
+        		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    	    </context:component-scan>
+
+7.要使得spring的xml文件在maven过程中生效，要在web.xml配置监听器，此监听器会监听servletcontext的创建和销毁，所以在监听到servletcontext创建时，则加载spring的xml文件
+	在web.xml配置如下：
+		<listener>
+    			<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  		</listener>
+		<!-- 此监听器默认只加载web-inf文件夹下的applicationContext.xml配置文件，因此需要自己重新配置spring的xml文件的路径 -->
+  		<context-param>
+    			<param-name>contextConfigLocation</param-name>
+    			<param-value>classpath*:applicationContext.xml</param-value>
+  		</context-param> 
+
+8.要使得mybatis的xml文件maven工程中使用，一般是将生成代理对象交给ioc去注入到service里面的dao对象
+	(1)xml方式：在spring的xml也就是applicationContext.xml中配置如下：
+    		<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        			<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        			<property name="jdbcUrl" value="jdbc:mysql:///ssm"/>
+        			<property name="user" value="root"/>
+        			<property name="password" value="root"/>
+    		</bean>
+		<!-- 3.两种配置SqlSessionFactory对象(二选一) -->
+    		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        			<!-- 注入数据库连接池 -->
+        			<property name="dataSource" ref="dataSource"/>
+        			<!-- 配置MyBaties全局配置文件:mybatis-config.xml -->
+        			<property name="configLocation" value="classpath:mybatis-config.xml"/>
+    		</bean>
+    		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        			<!-- 注入数据库连接池 -->
+        			<property name="dataSource" ref="dataSource"/>
+        			<!-- 配置MyBaties所有Mapper配置文件: -->
+        			<property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/>
+    		</bean>
+   		 <!--配置AccountDao接口所在包-->
+    		<bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        			<property name="basePackage" value="cn.itcast.dao"/>
+			<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    		</bean>
+
+    		<!--配置Spring框架声明式事务管理-->
+    		<!--配置事务管理器-->
+    		<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        			<property name="dataSource" ref="dataSource" />
+    		</bean>
+
+    		<!--配置事务通知-->
+    		<tx:advice id="txAdvice" transaction-manager="transactionManager">
+        			<tx:attributes>
+            				<tx:method name="find*" read-only="true"/>
+            				<tx:method name="*" isolation="DEFAULT"/>
+        			</tx:attributes>
+    		</tx:advice>
+
+    		<!--配置AOP增强-->
+   		 <aop:config>
+        			<aop:advisor advice-ref="txAdvice" pointcut="execution(* cn.itcast.service.impl.*ServiceImpl.*(..))"/>
+    		</aop:config>
+	(2)注解方式：在spring的xml也就是applicationContext.xml中配置如下：
+		<!--配置连接池-->
+    		<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        			<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        			<property name="jdbcUrl" value="jdbc:mysql:///ssm"/>
+        			<property name="user" value="root"/>
+        			<property name="password" value="root"/>
+    		</bean>
+
+    		<!--配置SqlSessionFactory工厂-->
+    		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        			<property name="dataSource" ref="dataSource" />
+    		</bean>
+
+   		 <!--配置AccountDao接口所在包-->
+    		<bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        			<property name="basePackage" value="cn.itcast.dao"/>
+    		</bean>
+
+    		<!--配置Spring框架声明式事务管理-->
+    		<!--配置事务管理器-->
+    		<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        			<property name="dataSource" ref="dataSource" />
+    		</bean>
+
+    		<!--配置事务通知-->
+    		<tx:advice id="txAdvice" transaction-manager="transactionManager">
+        			<tx:attributes>
+            				<tx:method name="find*" read-only="true"/>
+            				<tx:method name="*" isolation="DEFAULT"/>
+        			</tx:attributes>
+    		</tx:advice>
+
+    		<!--配置AOP增强-->
+   		 <aop:config>
+        			<aop:advisor advice-ref="txAdvice" pointcut="execution(* cn.itcast.service.impl.*ServiceImpl.*(..))"/>
+    		</aop:config>

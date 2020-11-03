@@ -1,0 +1,44 @@
+主要看day01_eesy_02mybatis_annotation以及day03_eesy_01datasourceAndTx
+1.延迟加载以及延迟加载策略
+	mybatis延迟加载就是在配置文件加载另外一个配置文件对应的方法以此实现功能
+开启全局延迟加载：
+    <settings>
+        <!--开启Mybatis支持延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"></setting>
+    </settings>
+ <association property="user" column="uid" javaType="user" select="com.itheima.dao.IUserDao.findById"></association>//一对一延迟加载
+<collection property="accounts" ofType="account" select="com.itheima.dao.IAccountDao.findAccountByUid" column="id"></collection>//一对多延迟加载
+2.立即加载
+
+3.缓存
+	什么是缓存
+		存在于内存中的临时数据
+	为什么使用缓存
+		减少与数据库的交互次数，提高执行效率
+	什么样的数据能使用缓存，什么数据不能
+		适用缓存：
+			经常查询并且不经常改变的数据
+			数据的正确与否对最终结果影响不大的
+		不适用缓存：
+			经常改变的数据
+			数据的正确与否对最终结果影响很大的
+	mybatis一级缓存和二级缓存（一级缓存存放的是对象，二级缓存存放的是数据）
+		一级缓存：指的是Mybatis中SqlSession对象（此对象消失时一级缓存也一起消失）的缓存，当执行查询后，结果同时存入SqlSession提供的一块区域，该区域是一个Map
+			当调用SqlSession中的修改、添加、删除、commit()、close()、clearcache()等方法时，会清空一级缓存
+
+		二级缓存：它指的是Mybatis中SqlSessionFactory对象的缓存，由同一个SqlSessionFactory对象创建的SqlSession对象都共享其缓存
+		实现二级缓存步骤：
+			第一步：让Mybatis框架支持二级缓存（在SqlMapConfig.xml中配置）： <settings><setting name="cacheEnabled" value="true"/></settings>
+			第二步：让当前的映射文件支持二级缓存（在IUserDao.xml中配置）：    <!--开启user支持二级缓存--><cache/>
+			第三步：让当前的操作支持二级缓存（在select标签中配置）：    <select id="findById" parameterType="INT" resultType="user" useCache="true">
+4.注解开发
+	环境搭建
+	单表CRUD操作（代理Dao方式）
+	多表查询操作
+	缓存的配置
+		注解二级缓存步骤：
+			第一步：让Mybatis框架支持二级缓存（在SqlMapConfig.xml中配置）： <settings><setting name="cacheEnabled" value="true"/></settings>
+			第二步：让当前Dao接口类上方（在IUserDao.class中配置）：    @CacheNamespace(blocking = true)
+
+	

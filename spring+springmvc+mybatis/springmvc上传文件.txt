@@ -1,0 +1,83 @@
+1.配置文件上传的必要条件
+	1.form表单的enctype(是指表单请求正文的类型)取值必须是multipart/form-data
+	2.请求方式一定是POST
+	3.提供文件选择域：<input type="file">
+	注：需要从请求体的数据中解析出文件的内容，然后在通过流写到服务器当中
+
+2.借助第三方组件(不使用springmvc提供的)实现解析文件内容
+	1.Commons-fileupload组件可以实现解析文件内容，在pom.xml导入Commons-fileupload的包：
+		<dependency>
+      			<groupId>commons-fileupload</groupId>
+      			<artifactId>commons-fileupload</artifactId>
+      			<version>1.4</version>
+    		</dependency>
+    		<dependency>
+     	 		<groupId>commons-io</groupId>
+      			<artifactId>commons-io</artifactId>
+      			<version>2.4</version>
+    		</dependency>
+	2.在方法参数中添加HttpServletRequest request，可以使得Commons-fileupload从reques中解析文件内容
+	3.在方法中先指定文件存储位置：String path = request.getSession().getServletContext().getRealPath("/文件夹名称/");//获取该文件夹的绝对路径
+	4.判断该路径是否存在
+		File file = new File(path);
+		if(!file.exists()){	
+			file.mkdirs(); //创建文件夹 
+		}
+	5.创建可以解析request对象获取上传文件项的ServletFileUpload对象
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		ServletFileUpload upload = new ServletFileUpload(factory);
+
+	6.使用ServletFileUpload对象解析request，返回一个List<FileItem>
+		List<FileItem> items = upload.parseRequest(request);
+	7.遍历items，获取文件上传项
+		for(FileItem item:items)
+		{
+			//判断item对象是否是上传文件项
+			if(item.isFormField())
+			{
+				//说明item对象是普通表单项
+
+			}else
+			{
+				//说明item对象是上传文件项
+				String filename = item.getName();//获取上传文件的名称
+				 item.write(new File(path,filename));//将上传文件的内容写到path路径下的filename文件中
+				item.delete();//删除临时文件，因为当超过文件超过10kb时会产生临时文件
+			}
+		}
+
+3.使用springmvc实现文件上传
+	1.在springmvc中配置文件解析器对象：
+    		<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        			<property name="maxInMemorySize" value="10485760"></property><!-- 配置上传文件最大的大小 -->
+    		</bean>	
+
+	2.添加方法参数HttpServletRequest request和MultipartFile upload，注：MultipartFile参数名称一定要和表单中上传文件框的name一样
+	3.在方法中先指定文件存储位置：String path = request.getSession().getServletContext().getRealPath("/文件夹名称/");//获取该文件夹的绝对路径
+	4.判断该路径是否存在
+		File file = new File(path);
+		if(!file.exists()){	
+			file.mkdirs(); //创建文件夹 
+		}
+	5.通过upload获取上传文件项目
+		String filename = upload.getOriginalFilename();//获取上传文件的名称
+		upload.transferTo(new File(path,filename));//将上传文件的内容写到path路径下的filename文件中
+
+4.通过jersey的jar实现跨服务器之间文件数据传输
+	1.创建两个maven项目，一个是应用服务器，一个是图片服务器
+	2.在图片服务器的首目录下创建一个uploads文件夹
+	3.在springmvc中配置文件解析器对象：
+    		<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        			<property name="maxInMemorySize" value="10485760"></property><!-- 配置上传文件最大的大小 -->
+    		</bean>	
+	4.添加方法参数MultipartFile upload，注：MultipartFile参数名称一定要和表单中上传文件框的name一样	
+	5.在方法中先指定要存放到图片服务器哪个文件夹下，例如：
+		String path = "http://localhost:9090/uploads/";
+	6.通过upload获取上传文件名称
+		String filename = upload.getOriginalFilename();//获取上传文件的名字
+	7.创建客户端对象
+		Client client = Client.create();
+	8.和图片服务器进行连接
+		WebResource webResource = client.resource(path+filename);
+	9.上传文件
+		webResource.put(upload.getBytes());

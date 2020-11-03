@@ -1,0 +1,7 @@
+1.盒子模型
+	作用：设计网页排版
+	盒子模型组成：	
+		margin：外边距
+		border：边框
+		padding：内边框
+		context：内容

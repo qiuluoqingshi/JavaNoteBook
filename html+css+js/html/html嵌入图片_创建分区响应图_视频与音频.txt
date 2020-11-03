@@ -1,0 +1,62 @@
+1.<img>标签
+	属性：
+		src：设置图片位置
+		width：设置图片宽度
+		height：设置图片高度
+		alt：设置图片的备用内容，若图片不存在，则起作用，显示alt内容
+	搭配<a>标签可以实现点击图片跳转页面
+
+2.创建分区响应图：
+	首先使用<img src="" map="#map1">
+		注意#要加上，代表导向要进行解析图片的map
+	然后使用<map>和<area>标签
+		<map name="map1">
+			<area href="" shape="rect" coords="1,2,3,2">
+			<!--代表图片中对应区域点击后会进行跳转-->
+		</map>
+
+3.<area>标签
+	属性：
+		href：点击该区域时浏览器应该记载的URL
+		alt：设置图片的备用内容，若图片不存在，则起作用，显示alt内容
+		shape：
+			值：Rect(方形图片)、Circle(圆形图片)、Ploy(六边形图片)、Dafault(默认覆盖整个图片，不需要coords值)
+		coords：可以通过<input type = "image" src="">获取图片各个想要的边缘的位置
+			值：
+			对应Rect：四个用逗号分隔的整数，分别依次代表图片左、上、右、下边缘处于图片的位置
+			对应Circle：两个用逗号分隔的整数，分别依次是图像圆心位置的x、图像圆心位置的y、圆的半径
+			对应Poly：至少六个用逗号分隔的整数组成，每两个数字代表一个顶点的坐标
+
+4.<video>标签：嵌入视频
+	属性：
+		src：视频地址
+		height：视频高度
+		width：视频宽度
+		autoplay：设置自动播放，没有值
+		controls：提供控制视频的组件，没有值
+		preload：预先载入视频，值：none-不会载入、metadata-只载入第一帧、auto(默认)-请求下载整个视频
+		loop：视频循环播放，没有值
+		poster：设置视频封面，值为封面地址
+		muted：视频静音
+	标签：<source>标签
+	
+	注：不同浏览器支持的视频格式是不同的，使用<source>标签实现不同浏览器的视频兼容，使用多个<source>标签导入不同的视频格式
+
+5.<source>标签
+	属性：
+		src：视频或者音频地址
+		type：视频或者音频格式，例如type="video/mp4"、type="audio/mp3"
+
+6.<audio>标签：插入音频标签
+	属性：
+		src：音频地址
+		height：音频高度
+		width：音频宽度
+		autoplay：设置自动播放，没有值
+		controls：提供控制音频的组件，没有值
+		preload：预先载入音频，值：none-不会载入、metadata-只载入第一帧、auto(默认)-请求下载整个视频
+		loop：音频循环播放，没有值 
+		muted：音频静音
+	标签：<source>标签
+	
+	注：不同浏览器支持的音频格式是不同的，使用<source>标签实现不同浏览器的音频兼容，使用多个<source>标签导入不同的音频格式
